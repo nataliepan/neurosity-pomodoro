@@ -6,9 +6,11 @@ import "./App.css";
 
 function App() {
   const [count, setCount] = useState(0);
+  const [hello, setHello] = useState("Loading...");
 
   const fetchHello = async () => {
     const response = await axios.get("http://localhost:8080/api/v1/hello-world");
+    setHello(response.data.message);
     console.log(response.data.message);
   };
 
@@ -29,6 +31,7 @@ function App() {
       <h1>Vite + React</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>count is {count}</button>
+        <p>{hello}</p>
         <p>
           Edit <code>src/App.tsx</code> and save to test HMR
         </p>
