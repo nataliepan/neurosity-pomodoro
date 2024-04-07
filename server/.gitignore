@@ -1,0 +1,8 @@
+./pomodoro/
+./.venv/
+./app-hello-world-node-js-sdk/
+./neurosity-sdk-python/
+/pomodoro
+/.venv
+/app-hello-world-node-js-sdk
+/neurosity-sdk-python
