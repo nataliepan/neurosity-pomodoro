@@ -7,6 +7,7 @@ import { Loading } from "./components/Loading";
 import { Login } from "./pages/Login";
 import { Logout } from "./pages/Logout";
 import { Calm } from "./pages/Calm";
+import { Start } from "./pages/Pomodoro/Start";
 
 function AppRoutes() {
   const navigate = useNavigate(); // This is now correctly within the context of <Router>
@@ -24,10 +25,11 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/" element={<Calm />} />
+      <Route path="/" element={<Start />} />
       <Route path="/devices" element={<Devices />} />
       <Route path="/login" element={<Login />} />
       <Route path="/logout" element={<Logout />} />
+      <Route path="/start" element={<Start />} />
     </Routes>
   );
 }

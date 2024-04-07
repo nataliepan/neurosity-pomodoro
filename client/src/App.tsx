@@ -5,11 +5,11 @@ import { ProvideNotion } from "./services/notion";
 
 function App() {
   return (
-    <ProvideNotion>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </ProvideNotion>
+      <ProvideNotion>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </ProvideNotion>
   );
 }
 
