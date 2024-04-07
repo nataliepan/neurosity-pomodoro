@@ -70,7 +70,7 @@ def callback(data):
     # { state: "online", charging: true, battery: 93, ... }
 
 unsubscribe = neurosity.status(callback)
-
+'''
 def callback(data):
     print("-" * 80)
     print("data", data)
@@ -81,8 +81,17 @@ def callback(data):
     mongodb.record_brainwaves(data)
 
 unsubscribe = neurosity.brainwaves_raw(callback)
+'''
+def callback_focus(data):
+    print("-" * 80)
+    print("data", data)
+    print("-" * 80)
+    ordered_dict = OrderedDict(data)
+    # Convert OrderedDict to JSON
+    json_data = json.dumps(ordered_dict)
+    mongodb.record_brainwaves(data)
 
-# unsubscribe = neurosity.focus(callback)
+unsubscribe = neurosity.focus(callback_focus)
 # time.sleep(2)
 # neurosity.add_marker("testing")
 # time.sleep(2)
