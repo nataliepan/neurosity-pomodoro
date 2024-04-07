@@ -27,21 +27,6 @@ def brainwaves():
         device_id = data.get('device_id')
         power_by_band = data.get('data')
 
-        # Process the data as needed
-        print(f"Timestamp: {timestamp}")
-        print(f"State: {state}")
-        print(f"Session ID: {session_id}")
-        print(f"Group ID: {group_id}")
-        print(f"Device ID: {device_id}")
-        print(f"Power By Band: {power_by_band}")
-
-        # Return a response
-        return jsonify({'message': 'Data received and stored successfully'}), 200
-
-    except Exception as e:
-        # Handle any errors that occur
-        return jsonify({'error': str(e)}), 500
-
         if __debug__:
             # Process the data as needed
             print(f"Timestamp: {timestamp}")

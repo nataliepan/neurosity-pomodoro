@@ -90,6 +90,11 @@ def callback_focus(data):
     # Convert OrderedDict to JSON
     json_data = json.dumps(ordered_dict)
     mongodb.record_brainwaves(data)
+    # Append JSON data to the file
+    with open('/Users/alanhelmick/Library/Mobile Documents/com~apple~CloudDocs/neurosity-pomodoro/output.json', "a") as json_file:
+        # Add a newline character before appending new data to maintain JSON format
+        json_file.write("\n")
+        json.dump(json_data, json_file, indent=4)
 
 unsubscribe = neurosity.focus(callback_focus)
 # time.sleep(2)
