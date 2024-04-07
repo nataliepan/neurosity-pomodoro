@@ -4,7 +4,12 @@
 
 body {
   margin: 0;
-  background-color: #e6ecef;
+  background: rgb(38, 71, 173);
+  background: linear-gradient(
+    145deg,
+    rgba(38, 71, 173, 0.4906556372549019) 0%,
+    rgba(255, 140, 158, 0.1601234243697479) 100%
+  );
   height: 100vh;
   font-size: 19px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu",
@@ -74,7 +79,6 @@ select {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 300px;
   min-height: 150px;
   padding: 30px 20px;
   border-radius: 8px;
