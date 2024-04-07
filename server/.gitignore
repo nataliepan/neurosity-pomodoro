@@ -6,3 +6,4 @@
 /.venv
 /app-hello-world-node-js-sdk
 /neurosity-sdk-python
+/__pycache__
