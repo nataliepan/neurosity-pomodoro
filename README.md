@@ -45,7 +45,7 @@ We welcome contributions from the community to help improve MindFocus Pro and ma
 
 ## Support
 
-If you encounter any issues, have questions, or would like to provide feedback, please feel free to reach out to us. You can contact us via [email](mailto:support@mindfocuspro.com) or [open an issue](https://github.com/mindfocuspro/mindfocus-pro/issues) on GitHub.
+If you encounter any issues, have questions, or would like to provide feedback, please feel free to reach out to us. You can contact us via [email](mailto:natalie.pan@gmail.com) or [open an issue](https://github.com/mindfocuspro/mindfocus-pro/issues) on GitHub.
 
 ## License
 
