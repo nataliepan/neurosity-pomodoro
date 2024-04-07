@@ -1,9 +1,9 @@
 import React, { useContext, createContext } from "react";
 import { useState, useEffect, useCallback } from "react";
-import { Notion } from "@neurosity/notion";
+import { Neurosity } from "@neurosity/sdk";
 import useLocalStorage from "react-use/lib/useLocalStorage";
 
-export const notion = new Notion({
+export const neurosity = new Neurosity({
   autoSelectDevice: false,
 });
 
@@ -14,16 +14,18 @@ const initialState = {
   loadingUser: true,
 };
 
-export const NotionContext = createContext(null);
+export const NeurosityContext = createContext(null);
 
-export const useNotion = () => {
-  return useContext(NotionContext);
+export const useNeurosity = () => {
+  return useContext(NeurosityContext);
 };
 
 export function ProvideNotion({ children }: { children: React.ReactNode }) {
-  const notionProvider = useProvideNotion();
+  const neurosityProvider = useProvideNotion();
 
-  return <NotionContext.Provider value={notionProvider}>{children}</NotionContext.Provider>;
+  return (
+    <NeurosityContext.Provider value={neurosityProvider}>{children}</NeurosityContext.Provider>
+  );
 }
 
 function useProvideNotion() {
@@ -44,7 +46,7 @@ function useProvideNotion() {
 
   useEffect(() => {
     if (user && !selectedDevice) {
-      notion.selectDevice((devices) =>
+      neurosity.selectDevice((devices) =>
         lastSelectedDeviceId
           ? devices.find((device) => device.deviceId === lastSelectedDeviceId)
           : devices[0]
@@ -57,7 +59,7 @@ function useProvideNotion() {
       return;
     }
 
-    const subscription = notion.status().subscribe((status) => {
+    const subscription = neurosity.status().subscribe((status) => {
       setState((state) => ({ ...state, status }));
     });
 
@@ -69,7 +71,7 @@ function useProvideNotion() {
   useEffect(() => {
     setState((state) => ({ ...state, loadingUser: true }));
 
-    const subscription = notion.onAuthStateChanged().subscribe((user) => {
+    const subscription = neurosity.onAuthStateChanged().subscribe((user) => {
       setState((state) => ({
         ...state,
         user,
@@ -83,7 +85,7 @@ function useProvideNotion() {
   }, []);
 
   useEffect(() => {
-    const sub = notion.onDeviceChange().subscribe((selectedDevice) => {
+    const sub = neurosity.onDeviceChange().subscribe((selectedDevice) => {
       setSelectedDevice(selectedDevice);
       setLastSelectedDeviceId(selectedDevice.deviceId); // cache locally
     });
@@ -95,7 +97,7 @@ function useProvideNotion() {
 
   const logoutNotion = useCallback(() => {
     return new Promise((resolve) => {
-      notion.logout().then(resolve);
+      neurosity.logout().then(resolve);
       setState({ ...initialState, loadingUser: false });
     });
   }, []);

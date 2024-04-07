@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { notion, useNotion } from "../services/notion";
+import { neurosity, useNeurosity } from "../services/notion";
 import { DeviceInfo } from "@neurosity/notion/dist/esm/types/deviceInfo";
-
 
 export function Devices() {
   const navigate = useNavigate();
-  const { user, lastSelectedDeviceId } = useNotion();
+  const { user, lastSelectedDeviceId } = useNeurosity();
   const [devices, setDevices] = useState<DeviceInfo[]>([]);
   const [draftDeviceId, setDraftDeviceId] = useState("");
   const [loading, setLoading] = useState(true);
@@ -21,7 +20,7 @@ export function Devices() {
 
     setLoading(true);
 
-    notion
+    neurosity
       .getDevices()
       .then((devices) => {
         setDevices(devices);
@@ -41,7 +40,7 @@ export function Devices() {
     event.preventDefault();
     setSubmitting(true);
 
-    notion
+    neurosity
       .selectDevice((devices) => devices.find((device) => device.deviceId === draftDeviceId))
       .then(() => {
         navigate("/");
