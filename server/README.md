@@ -1,4 +1,4 @@
-# Welcome to MindFocus Pro 🧠
+# Welcome to MindFocus Pro Back-End 🧠
 
 MindFocus Pro is a cutting-edge Pomodoro technique mastery app designed to enhance productivity and focus. With built-in extensions for the Neurosity Headset, it takes your productivity to the next level by leveraging brainwave data for a more personalized and effective work or study experience.
 
@@ -43,7 +43,7 @@ We welcome contributions from the community to help improve MindFocus Pro and ma
 
 ## Support
 
-If you encounter any issues, have questions, or would like to provide feedback, please feel free to reach out to us. You can contact us via [email](mailto:support@mindfocuspro.com) or [open an issue](https://github.com/mindfocuspro/mindfocus-pro/issues) on GitHub.
+If you encounter any issues, have questions, or would like to provide feedback, please feel free to reach out to us. You can contact us via [email](mailto:alanchelmickjr@gmail.com) or [open an issue](https://github.com/mindfocuspro/mindfocus-pro/issues) on GitHub.
 
 ## License
 
