@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Bars3Icon } from "@heroicons/react/24/solid";
 import { useNavigate } from "react-router-dom";
-import { notion, useNotion } from "../../services/notion";
+import { neurosity, useNeurosity } from "../../services/notion";
 import { Nav } from "../../components/Nav";
 import ProgressCircle from "../../components/ProgressCircle";
 
@@ -77,7 +77,7 @@ export function Start() {
   const [progress, setProgress] = useState(0);
   const [focus, setFocus] = useState(0);
   const [showNav, setShowNav] = useState(false);
-  const { user } = useNotion();
+  const { user } = useNeurosity();
 
   const onMenuClick = () => {
     setShowNav(!showNav);
@@ -94,7 +94,7 @@ export function Start() {
       return;
     }
 
-    const subscription = notion.focus().subscribe((f) => {
+    const subscription = neurosity.focus().subscribe((f) => {
       const focusScore = Math.trunc(f.probability * 100);
       setFocus(focusScore);
     });
@@ -105,21 +105,30 @@ export function Start() {
   }, [user]);
 
   useEffect(() => {
+    const MAX_TIME = STAGE[currentStage].time; // Define MAX_TIME based on the current stage's time
     let interval = null;
 
     if (timerActive && timeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((timeLeft) => timeLeft - 1);
-        const maxTime = STAGE[currentStage].time;
-        setProgress((100 * (maxTime - timeLeft)) / maxTime);
+        setTimeLeft((prevTimeLeft) => {
+          const newTimeLeft = prevTimeLeft - 1;
+          setProgress((100 * (MAX_TIME - newTimeLeft)) / MAX_TIME); // Update progress based on new time left
+          return newTimeLeft;
+        });
       }, 1000);
     } else if (timeLeft === 0 && timerActive) {
-      clearInterval(interval); // Clear the interval to prevent it from continuing to run
-      setTimerActive(false); // Stop the timer
-      alert(STAGE[currentStage].title + " is over!"); // Alert based on the stage title
-      const nextStage = (currentStage + 1) % STAGE.length; // Move to the next stage or loop back to the start
-      setCurrentStage(nextStage); // Update the current stage
-      setTimeLeft(STAGE[nextStage].time); // Set the time for the next stage
+      // Ensure the progress is set to 100% right before the alert
+      setProgress(100);
+
+      // Allow UI to update
+      setTimeout(() => {
+        alert(`${STAGE[currentStage].title} is over!`);
+        const nextStage = (currentStage + 1) % STAGE.length;
+        setCurrentStage(nextStage);
+        setTimeLeft(STAGE[nextStage].time);
+        setProgress(0); // Reset progress for the new stage
+        setTimerActive(false); // Stop the timer or set it to true to automatically start the next stage
+      }, 100); // A short delay to ensure the UI updates
     }
 
     return () => clearInterval(interval);

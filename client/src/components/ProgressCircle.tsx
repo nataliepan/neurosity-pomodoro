@@ -1,14 +1,11 @@
-import React from "react";
-
 function ProgressCircle({ progress }) {
   const strokeWidth = 10; // The stroke width of the progress ring
-  // Adjust the radius of the progress ring to be smaller by half the stroke width than the white circle
   const radius = 75; // Radius for the white circle
-  const progressRadius = radius - strokeWidth / 2; // Radius for the progress ring
+  const progressRadius = radius - strokeWidth / 2; // Radius for the progress ring to ensure it's inside the white circle
 
   const circumference = progressRadius * 2 * Math.PI;
-  const strokeDasharray = `${circumference}`;
-  const strokeDashoffset = ((100 - progress) / 100) * circumference;
+  // Ensure that when progress is 100, the offset is effectively 0
+  const strokeDashoffset = progress < 100 ? circumference - (progress / 100) * circumference : 0;
 
   return (
     <div className="flex items-center justify-center">
@@ -23,7 +20,7 @@ function ProgressCircle({ progress }) {
           fill="transparent"
           stroke="rgb(113, 211, 211)"
           strokeWidth={strokeWidth}
-          strokeDasharray={strokeDasharray}
+          strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="butt"
           className="transition-all duration-300 ease-in-out"
@@ -32,5 +29,3 @@ function ProgressCircle({ progress }) {
     </div>
   );
 }
-
-export default ProgressCircle;

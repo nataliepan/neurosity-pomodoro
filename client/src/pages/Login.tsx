@@ -5,11 +5,11 @@ import useEffectOnce from "react-use/lib/useEffectOnce";
 import { LoginForm } from "../components/LoginForm";
 import { Footer } from "../components/Footer";
 
-import { notion, useNotion } from "../services/notion";
+import { neurosity, useNeurosity } from "../services/notion";
 
 export function Login() {
   const navigate = useNavigate();
-  const { user, lastSelectedDeviceId, setSelectedDevice } = useNotion();
+  const { user, lastSelectedDeviceId, setSelectedDevice } = useNeurosity();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -28,7 +28,7 @@ export function Login() {
 
     async function login() {
       setIsLoggingIn(true);
-      const auth = await notion.login({ email, password }).catch((error) => {
+      const auth = await neurosity.login({ email, password }).catch((error) => {
         setError(error.message);
       });
 

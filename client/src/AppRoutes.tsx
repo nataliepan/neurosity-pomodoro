@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, useNavigate } from "react-router-dom";
 
-import { useNotion } from "./services/notion";
+import { useNeurosity } from "./services/notion";
 import { Devices } from "./pages/Devices";
 import { Loading } from "./components/Loading";
 import { Login } from "./pages/Login";
@@ -11,7 +11,7 @@ import { Start } from "./pages/Pomodoro/Start";
 
 function AppRoutes() {
   const navigate = useNavigate(); // This is now correctly within the context of <Router>
-  const { user, loadingUser } = useNotion();
+  const { user, loadingUser } = useNeurosity();
 
   useEffect(() => {
     if (!loadingUser && !user) {
