@@ -12,6 +12,9 @@ MindFocus Pro is a cutting-edge Pomodoro technique mastery app designed to enhan
 
 - **Built-in Extensions**: Explore a range of built-in extensions specially designed to enhance your productivity and focus, including brainwave visualization, focus tracking, and more.
 
+
+(https://github.com/nataliepan/neurosity-pomodoro/assets/16673226/fa164fe5-de0a-4439-901c-3a57eb0f8edb)
+
 ## Installation
 
 1. Clone the MindFocus Pro repository to your local machine:
