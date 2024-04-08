@@ -2,6 +2,8 @@
 
 MindFocus Pro is a cutting-edge Pomodoro technique mastery app designed to enhance productivity and focus. With built-in extensions for the Neurosity Headset, it takes your productivity to the next level by leveraging brainwave data for a more personalized and effective work or study experience.
 
+[Demo](https://youtu.be/CjMBh107-10)
+
 ## Features
 
 - **Pomodoro Technique Mastery**: Achieve productivity mastery through the renowned Pomodoro technique, a time management method that uses a timer to break work into intervals, traditionally 25 minutes in length, separated by short breaks.
