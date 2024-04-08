@@ -7,6 +7,8 @@ export const neurosity = new Neurosity({
   autoSelectDevice: false,
 });
 
+export const effects = neurosity.getHapticEffects();
+
 const initialState = {
   selectedDevice: null,
   status: null,

@@ -3,7 +3,7 @@ import { Bars3Icon, SpeakerWaveIcon, SpeakerXMarkIcon } from "@heroicons/react/2
 import chime from "../../assets/bell.mp3";
 import endSound from "../../assets/level-up-191997.mp3";
 import { useNavigate } from "react-router-dom";
-import { neurosity, useNeurosity } from "../../services/notion";
+import { neurosity, useNeurosity, effects } from "../../services/notion";
 import { Nav } from "../../components/Nav";
 import ProgressCircle from "../../components/ProgressCircle";
 import useAudioPlayer from "../../services/useAudioPlayer";
@@ -15,7 +15,8 @@ import track3 from "../../assets/track-3.png";
 import track4 from "../../assets/track-4.png";
 import warning from "../../assets/warning.mp3";
 import FocusRating from "../../components/FocusRating";
-import { start } from "repl";
+import PlayPause from "../../components/PlayPause";
+
 const STATE = { START: "START", FOCUS: "FOCUS", BREAK: "BREAK", LONG_BREAK: "LONG_BREAK" };
 const STATE_TIME = { FOCUS: 10, BREAK: 3, LONG_BREAK: 7 };
 // { FOCUS: 25 * 60, BREAK: 5 * 60, LONG_BREAK: 25 * 60 };
@@ -100,7 +101,7 @@ const STAGE = [
     image: track4,
     title: "Congrats You Finished a Series!",
     description: "Celebrate your hard work with a LONG break.",
-    sound: null,
+    sound: SOUND_TYPE.BELL,
     getFeedback: true,
   },
   {
@@ -133,6 +134,19 @@ export function Start() {
   const [warnPossible, setWarnPossible] = useState(true);
 
   const onMenuClick = () => {
+    // neurosity
+    //   .haptics({
+    //     P7: [
+    //       effects.transitionRampUpLongSmooth1_0_to_100,
+    //       effects.transitionRampDownLongSmooth1_100_to_0,
+    //     ],
+    //   })
+    //   .then((result) => {
+    //     console.log(result.status);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to vibrate", error);
+    //   });
     setShowNav(!showNav);
   };
 
@@ -141,6 +155,20 @@ export function Start() {
 
     if (STAGE[currentStage].state === STATE.FOCUS && focus > 0 && focus < 40 && warnPossible) {
       // Assuming warningAudioPlayer.play() returns a Promise. Adjust as necessary.
+      neurosity
+        .haptics({
+          P7: [
+            effects.transitionRampUpLongSmooth1_0_to_100,
+            effects.transitionRampDownLongSmooth1_100_to_0,
+          ],
+          P8: [
+            effects.transitionRampUpLongSmooth1_0_to_100,
+            effects.transitionRampDownLongSmooth1_100_to_0,
+          ],
+        })
+        .catch((error) => {
+          console.error("Failed to vibrate", error);
+        });
       warningAudioPlayer.play().catch((error) => {
         console.error("Failed to play warning audio:", error);
       });
@@ -226,19 +254,36 @@ export function Start() {
   }, [timerActive, timeLeft, currentStage, audioPlayer, endAudioPlayer]);
 
   const onStartClick = async () => {
-    if (!timerActive) {
+    // Check if the current stage is the last one
+    if (currentStage === STAGE.length - 1) {
       try {
-        const nextStage = (currentStage + 1) % STAGE.length;
-        setCurrentStage(nextStage);
-        await audioPlayer.play();
-        // Audio has finished playing, proceed with updating timer or state
-        setTimerActive(true);
-        // You can now safely change time or update any state here
+        // Optionally play a sound here if needed
+        //await audioPlayer.play();
+        // Reset to the first stage with all default settings
+        setCurrentStage(0); // Reset to the first stage
+        setTimeLeft(STAGE[0].time); // Reset time based on the first stage's time
+        setTimerActive(false); // Optionally stop the timer or set to true based on your app's logic
+        setProgress(0); // Reset progress
+        setFocus(0); // Reset focus score
+        // Reset any other state variables as needed
       } catch (error) {
         console.error("Error playing audio:", error);
       }
     } else {
-      setTimerActive(false);
+      // If not the last stage, proceed as before
+      if (!timerActive) {
+        try {
+          const nextStage = (currentStage + 1) % STAGE.length;
+          setCurrentStage(nextStage);
+          await (nextStage === 0 ? audioPlayer : endAudioPlayer).play(); // Choose the correct player based on the stage
+          setTimerActive(true);
+          setTimeLeft(STAGE[nextStage].time); // Update time for the next stage
+        } catch (error) {
+          console.error("Error playing audio:", error);
+        }
+      } else {
+        setTimerActive(false);
+      }
     }
   };
 
@@ -303,9 +348,9 @@ export function Start() {
             )}
           </button>
           <p className="text-8xl">{formatTime(timeLeft)}</p>
-          <button onClick={onStartClick} className={`card-btn ${timerActive ? "opacity-50" : ""}`}>
-            {timerActive ? "Pause" : "Start"}
-          </button>
+          <div className="flex items-center justify-center">
+            <PlayPause timerActive={timerActive} onStartClick={onStartClick} />
+          </div>
         </div>
       </div>
     </div>
