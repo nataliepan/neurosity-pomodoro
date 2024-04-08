@@ -8,6 +8,7 @@ import { Login } from "./pages/Login";
 import { Logout } from "./pages/Logout";
 import { Calm } from "./pages/Calm";
 import { Start } from "./pages/Pomodoro/Start";
+import SurveyPage from "./pages/Pomodoro/OnBoarding";
 
 function AppRoutes() {
   const navigate = useNavigate(); // This is now correctly within the context of <Router>
@@ -25,6 +26,7 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/survey" element={<SurveyPage />} />
       <Route path="/" element={<Start />} />
       <Route path="/devices" element={<Devices />} />
       <Route path="/login" element={<Login />} />

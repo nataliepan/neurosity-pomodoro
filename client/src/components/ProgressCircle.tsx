@@ -1,11 +1,24 @@
-function ProgressCircle({ progress }) {
-  const strokeWidth = 10; // The stroke width of the progress ring
-  const radius = 75; // Radius for the white circle
-  const progressRadius = radius - strokeWidth / 2; // Radius for the progress ring to ensure it's inside the white circle
+import React, { useState, useEffect } from "react";
 
+function ProgressCircle({ progress }) {
+  const strokeWidth = 10;
+  const radius = 75;
+  const progressRadius = radius - strokeWidth / 2;
   const circumference = progressRadius * 2 * Math.PI;
-  // Ensure that when progress is 100, the offset is effectively 0
-  const strokeDashoffset = progress < 100 ? circumference - (progress / 100) * circumference : 0;
+  const [isAnimating, setIsAnimating] = useState(true);
+
+  // Calculate the strokeDashoffset based on progress, but skip animation when going back to 0
+  const strokeDashoffset = progress <= 100 ? circumference - (progress / 100) * circumference : 0;
+
+  // Effect to disable animation when progress goes back to 0
+  useEffect(() => {
+    if (progress === 0) {
+      setIsAnimating(false);
+      // Use a timeout to re-enable animation after a brief pause
+      const timeout = setTimeout(() => setIsAnimating(true), 50); // Small delay
+      return () => clearTimeout(timeout);
+    }
+  }, [progress]);
 
   return (
     <div className="flex items-center justify-center">
@@ -23,9 +36,11 @@ function ProgressCircle({ progress }) {
           strokeDasharray={circumference}
           strokeDashoffset={strokeDashoffset}
           strokeLinecap="butt"
-          className="transition-all duration-300 ease-in-out"
+          style={{ transition: isAnimating ? "stroke-dashoffset 1s ease-in-out" : "none" }}
         />
       </svg>
     </div>
   );
 }
+
+export default ProgressCircle;

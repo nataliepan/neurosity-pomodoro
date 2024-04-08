@@ -1,87 +1,192 @@
 import React, { useState, useEffect } from "react";
-import { Bars3Icon } from "@heroicons/react/24/solid";
+import { Bars3Icon, SpeakerWaveIcon, SpeakerXMarkIcon } from "@heroicons/react/24/solid";
+import chime from "../../assets/bell.mp3";
+import endSound from "../../assets/level-up-191997.mp3";
 import { useNavigate } from "react-router-dom";
-import { neurosity, useNeurosity } from "../../services/notion";
+import { neurosity, useNeurosity, effects } from "../../services/notion";
 import { Nav } from "../../components/Nav";
 import ProgressCircle from "../../components/ProgressCircle";
+import useAudioPlayer from "../../services/useAudioPlayer";
+import startImage from "../../assets/headset-start.png";
+import endImage from "../../assets/celebrate.png";
+import track1 from "../../assets/track-1.png";
+import track2 from "../../assets/track-2.png";
+import track3 from "../../assets/track-3.png";
+import track4 from "../../assets/track-4.png";
+import warning from "../../assets/warning.mp3";
+import FocusRating from "../../components/FocusRating";
+import PlayPause from "../../components/PlayPause";
 
-const STATE = { FOCUS: "FOCUS", BREAK: "BREAK", LONG_BREAK: "LONG_BREAK" };
-const STATE_TIME = { FOCUS: 25, BREAK: 5, LONG_BREAK: 25 };
+const STATE = { START: "START", FOCUS: "FOCUS", BREAK: "BREAK", LONG_BREAK: "LONG_BREAK" };
+const STATE_TIME = { FOCUS: 10, BREAK: 3, LONG_BREAK: 7 };
 // { FOCUS: 25 * 60, BREAK: 5 * 60, LONG_BREAK: 25 * 60 };
 
+const SOUND_TYPE = { BELL: "BELL", END: "END" };
 const STAGE = [
   {
-    state: STATE.FOCUS,
+    state: STATE.START,
     time: STATE_TIME.FOCUS,
-    image: "",
+    image: startImage,
     title: "Start Pomodoro",
     description: "Click the button to start the Pomodoro timer.",
-  },
-  {
-    state: STATE.BREAK,
-    time: STATE_TIME.BREAK,
-    image: "",
-    title: "Break Time!",
-    description: "Celebrate your hard work with a short break.",
+    sound: SOUND_TYPE.BELL,
+    getFeedback: false,
   },
   {
     state: STATE.FOCUS,
     time: STATE_TIME.FOCUS,
-    image: "",
+    image: startImage,
+    title: "Focus Time!",
+    description: "Get to work! You'll have a short break after this session.",
+    sound: SOUND_TYPE.END,
+    getFeedback: false,
+  },
+  {
+    state: STATE.BREAK,
+    time: STATE_TIME.BREAK,
+    image: track1,
+    title: "Break Time!",
+    description: "Celebrate your hard work with a short break.",
+    sound: SOUND_TYPE.BELL,
+    getFeedback: true,
+  },
+  {
+    state: STATE.FOCUS,
+    time: STATE_TIME.FOCUS,
+    image: startImage,
     title: "Focus Time!",
     description: "If you pause, you'll have to start this focus session over.",
+    sound: SOUND_TYPE.END,
+    getFeedback: false,
   },
   {
     state: STATE.BREAK,
     time: STATE_TIME.BREAK,
-    image: "",
+    image: track2,
     title: "Break Time!",
     description: "Celebrate your hard work with a short break.",
+    sound: SOUND_TYPE.BELL,
+    getFeedback: true,
   },
   {
     state: STATE.FOCUS,
     time: STATE_TIME.FOCUS,
-    image: "",
+    image: startImage,
     title: "Focus Time!",
     description: "Wear your headset so we can create your personal focus model.",
+    sound: SOUND_TYPE.END,
+    getFeedback: false,
   },
   {
     state: STATE.BREAK,
     time: STATE_TIME.BREAK,
-    image: "",
+    image: track3,
     title: "Break Time!",
     description: "Celebrate your hard work with a short break.",
+    sound: SOUND_TYPE.BELL,
+    getFeedback: true,
   },
   {
     state: STATE.FOCUS,
     time: STATE_TIME.FOCUS,
-    image: "",
+    image: startImage,
     title: "Focus Time!",
     description: "You're almost done! Keep going!",
+    sound: SOUND_TYPE.END,
+    getFeedback: false,
   },
   {
     state: STATE.LONG_BREAK,
     time: STATE_TIME.LONG_BREAK,
-    image: "",
+    image: track4,
     title: "Congrats You Finished a Series!",
     description: "Celebrate your hard work with a LONG break.",
+    sound: SOUND_TYPE.BELL,
+    getFeedback: true,
+  },
+  {
+    state: STATE.LONG_BREAK,
+    time: 0,
+    image: endImage,
+    title: "Congrats You Finished a Series!",
+    description: "Celebrate your hard work with a LONG break.",
+    sound: null,
   },
 ];
 
 export function Start() {
   // State to track remaining time in seconds
   const navigate = useNavigate();
+  const [sound, setSound] = useState(true);
+  const audioPlayer = useAudioPlayer(chime, sound);
+  const endAudioPlayer = useAudioPlayer(endSound, sound);
+  const warningAudioPlayer = useAudioPlayer(warning, sound);
+
   const [currentStage, setCurrentStage] = useState(0); // Index of the current stage
   const [timeLeft, setTimeLeft] = useState(STAGE[0].time);
   const [timerActive, setTimerActive] = useState(false);
   const [progress, setProgress] = useState(0);
   const [focus, setFocus] = useState(0);
   const [showNav, setShowNav] = useState(false);
+  const [showRateFocus, setShowRateFocus] = useState(false);
   const { user } = useNeurosity();
 
+  const [warnPossible, setWarnPossible] = useState(true);
+
   const onMenuClick = () => {
+    // neurosity
+    //   .haptics({
+    //     P7: [
+    //       effects.transitionRampUpLongSmooth1_0_to_100,
+    //       effects.transitionRampDownLongSmooth1_100_to_0,
+    //     ],
+    //   })
+    //   .then((result) => {
+    //     console.log(result.status);
+    //   })
+    //   .catch((error) => {
+    //     console.error("Failed to vibrate", error);
+    //   });
     setShowNav(!showNav);
   };
+
+  useEffect(() => {
+    let timeoutId;
+
+    if (STAGE[currentStage].state === STATE.FOCUS && focus > 0 && focus < 40 && warnPossible) {
+      // Assuming warningAudioPlayer.play() returns a Promise. Adjust as necessary.
+      neurosity
+        .haptics({
+          P7: [
+            effects.transitionRampUpLongSmooth1_0_to_100,
+            effects.transitionRampDownLongSmooth1_100_to_0,
+          ],
+          P8: [
+            effects.transitionRampUpLongSmooth1_0_to_100,
+            effects.transitionRampDownLongSmooth1_100_to_0,
+          ],
+        })
+        .catch((error) => {
+          console.error("Failed to vibrate", error);
+        });
+      warningAudioPlayer.play().catch((error) => {
+        console.error("Failed to play warning audio:", error);
+      });
+      setWarnPossible(false);
+
+      // Set a timeout to re-enable warnings after a delay
+      timeoutId = setTimeout(() => {
+        setWarnPossible(true);
+      }, 5000); // Adjust the delay as needed
+    }
+
+    // Cleanup function to clear the timeout
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [focus, currentStage, warnPossible]); // Removed setWarnPossible from dependencies
 
   useEffect(() => {
     if (!user) {
@@ -105,6 +210,10 @@ export function Start() {
   }, [user]);
 
   useEffect(() => {
+    setWarnPossible(true);
+  }, [currentStage]);
+
+  useEffect(() => {
     const MAX_TIME = STAGE[currentStage].time; // Define MAX_TIME based on the current stage's time
     let interval = null;
 
@@ -117,26 +226,64 @@ export function Start() {
         });
       }, 1000);
     } else if (timeLeft === 0 && timerActive) {
-      // Ensure the progress is set to 100% right before the alert
       setProgress(100);
 
-      // Allow UI to update
-      setTimeout(() => {
-        alert(`${STAGE[currentStage].title} is over!`);
-        const nextStage = (currentStage + 1) % STAGE.length;
-        setCurrentStage(nextStage);
-        setTimeLeft(STAGE[nextStage].time);
-        setProgress(0); // Reset progress for the new stage
-        setTimerActive(false); // Stop the timer or set it to true to automatically start the next stage
-      }, 100); // A short delay to ensure the UI updates
+      // Since the play method returns a promise, handle it asynchronously
+      if (STAGE[currentStage].sound) {
+        const playPromise =
+          STAGE[currentStage].sound == SOUND_TYPE.END ? audioPlayer.play() : endAudioPlayer.play();
+
+        playPromise
+          .then(() => {
+            // This block runs after the audio finishes playing
+            setTimeout(() => {
+              const nextStage = (currentStage + 1) % STAGE.length;
+              setCurrentStage(nextStage); // Update the current stage
+              setTimeLeft(STAGE[nextStage].time); // Update time left based on the new stage
+              setProgress(0); // Reset progress for the new stage
+              if (nextStage == STAGE.length - 1) {
+                setTimerActive(false);
+              }
+            }, 100); // A short delay to ensure the UI updates
+          })
+          .catch((error) => console.error("Error playing audio:", error));
+      }
     }
 
     return () => clearInterval(interval);
-  }, [timerActive, timeLeft, currentStage]);
+  }, [timerActive, timeLeft, currentStage, audioPlayer, endAudioPlayer]);
 
-  const onStartClick = () => {
-    if (!timerActive) {
-      setTimerActive(true);
+  const onStartClick = async () => {
+    // Check if the current stage is the last one
+    if (currentStage === STAGE.length - 1) {
+      try {
+        // Optionally play a sound here if needed
+        //await audioPlayer.play();
+        // Reset to the first stage with all default settings
+        setCurrentStage(0); // Reset to the first stage
+        setTimeLeft(STAGE[0].time); // Reset time based on the first stage's time
+        setTimerActive(false); // Optionally stop the timer or set to true based on your app's logic
+        setProgress(0); // Reset progress
+        setFocus(0); // Reset focus score
+        // Reset any other state variables as needed
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
+    } else {
+      // If not the last stage, proceed as before
+      if (!timerActive) {
+        try {
+          const nextStage = (currentStage + 1) % STAGE.length;
+          setCurrentStage(nextStage);
+          await (nextStage === 0 ? audioPlayer : endAudioPlayer).play(); // Choose the correct player based on the stage
+          setTimerActive(true);
+          setTimeLeft(STAGE[nextStage].time); // Update time for the next stage
+        } catch (error) {
+          console.error("Error playing audio:", error);
+        }
+      } else {
+        setTimerActive(false);
+      }
     }
   };
 
@@ -147,8 +294,24 @@ export function Start() {
     return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
   };
 
+  const onToggleSound = () => {
+    setSound(!sound);
+  };
+
+  useEffect(() => {
+    if (STAGE[currentStage].getFeedback) {
+      setShowRateFocus(true);
+    } else {
+      setShowRateFocus(false);
+    }
+  }, [currentStage, setShowRateFocus]);
+
+  const onRateFocusClose = () => {
+    setShowRateFocus(false);
+  };
+
   return (
-    <div>
+    <div className="px-5">
       <div className="flex justify-end">
         <button className="p-5" onClick={onMenuClick}>
           <Bars3Icon className="h-6 w-6 text-black-500" />
@@ -157,24 +320,37 @@ export function Start() {
           <Nav />
         </div>
       </div>
-
-      <div className="flex flex-col items-center space-y-8 justify-center h-screen text-center">
+      <div className="flex justify-end">
+        <div className={`position absolute z-10 top-10`}>
+          <FocusRating isVisible={showRateFocus} onClose={onRateFocusClose}></FocusRating>
+        </div>
+      </div>
+      <div className="flex flex-col items-center space-y-4 h-screen text-center">
         <h1 className="text-2xl">{STAGE[currentStage].title}</h1>
         <p>{STAGE[currentStage].description}</p>
 
-        <div>
+        <div
+          className="relative flex items-center justify-center"
+          style={{ width: "160px", height: "210px" }}
+        >
           <ProgressCircle progress={progress} />
-          <p>{focus > 0 && <span>Focus {focus}%</span>}</p>
+          <div className="absolute bottom-0">{focus > 0 && <span>Focus {focus}%</span>}</div>
+          <div className="absolute">
+            <img src={STAGE[currentStage].image} alt="start" className="w-40 h-40" />
+          </div>
         </div>
         <div>
-          <p className="text-8xl">{formatTime(timeLeft)}</p>
-          <button
-            onClick={onStartClick}
-            className={`card-btn ${timerActive ? "opacity-50" : ""}`}
-            disabled={timerActive}
-          >
-            {timerActive ? "Running..." : "Start"}
+          <button onClick={onToggleSound}>
+            {sound ? (
+              <SpeakerWaveIcon className="h-6 w-6 text-black-500" />
+            ) : (
+              <SpeakerXMarkIcon className="h-6 w-6 text-black-500" />
+            )}
           </button>
+          <p className="text-8xl">{formatTime(timeLeft)}</p>
+          <div className="flex items-center justify-center">
+            <PlayPause timerActive={timerActive} onStartClick={onStartClick} />
+          </div>
         </div>
       </div>
     </div>
